@@ -20,13 +20,13 @@ describe('backend-express-template routes', () => {
   it('Test to redirect users to /dashboard when logged in', async () => {
     const resp = await request
       .agent(app)
-      .get('/api/v1/github/login/callback?=code?d62ea7a78b67d5441d5a')
+      .get('/api/v1/github/callback')
       .redirects(1);
     expect(resp.body).toEqual({
       id: expect.any(String),
-      username: 'testProfile',
+      username: 'testtest',
       email: '1@1.com',
-      avatar: expect.any(String),
+      avatar: null,
       iat: expect.any(Number),
       exp: expect.any(Number),
     });
