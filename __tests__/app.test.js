@@ -42,14 +42,14 @@ describe('backend-express-template routes', () => {
   });
 
   it('Test to grab all posts', async () => {
-    const resp = await request(app).get('/posts');
+    const resp = await request(app).get('/api/v1/posts');
     const test = resp.body.find((post) => post.title === 'KNOB KNOBs diary');
 
     expect(test).toHaveProperty('title', 'KNOB KNOBs diary');
   });
 
   it('Test to confirm post is successful when logged in', async () => {
-    const resp = await request(app).post('/posts').send({
+    const resp = await request(app).post('/api/v1/posts').send({
       title: 'GORBOK THE DESTROYER',
       description: 'Ate KNOB KNOB, tastes like human',
     });
