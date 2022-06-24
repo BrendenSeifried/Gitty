@@ -2,8 +2,18 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
+const GithubUser = require('../lib/models/GithubUser');
 
 jest.mock('../lib/services/github.js');
+
+const registerAndLogin = async (userTestLogin = {}) => {
+  const password = userTestLogin.password ?? testUser.password;
+  const agent = request.agent(app);
+  const user = await GithubUser.create({ ...testUser, ...userTestLogin });
+  const { email } = user;
+  await agent.post('/api/v1/users/sessions').send({ email, username, avatar });
+  return [agent, user];
+};
 
 describe('backend-express-template routes', () => {
   beforeEach(() => {
@@ -29,6 +39,16 @@ describe('backend-express-template routes', () => {
       iat: expect.any(Number),
       exp: expect.any(Number),
     });
+  });
+
+  it('Test to confirm post is successful when logged in', async (req, res) => {
+    const resp = await (
+      await request(app).post('/posts')
+    ).setEncoding({
+      title: 'GORBOK THE DESTROYER',
+      description: 'Ate KNOB KNOB, tastes like human',
+    });
+    expect(resp.status).toEqual(200);
   });
 
   afterAll(() => {
