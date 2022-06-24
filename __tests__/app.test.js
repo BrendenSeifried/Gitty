@@ -54,6 +54,11 @@ describe('backend-express-template routes', () => {
       description: 'Ate KNOB KNOB, tastes like human',
     });
     expect(resp.status).toEqual(200);
+    expect(resp.body).toHaveProperty('title', 'GORBOK THE DESTROYER');
+    expect(resp.body).toHaveProperty(
+      'description',
+      'Ate KNOB KNOB, tastes like human'
+    );
   });
 
   afterAll(() => {
