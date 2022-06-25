@@ -6,13 +6,10 @@ const GithubUser = require('../lib/models/GithubUser');
 
 jest.mock('../lib/services/github.js');
 
-const registerAndLogin = async (userTestLogin = {}) => {
-  const password = userTestLogin.password ?? testUser.password;
+const registerAndLogin = async () => {
   const agent = request.agent(app);
-  const user = await GithubUser.create({ ...testUser, ...userTestLogin });
-  const { email } = user;
-  await agent.post('/api/v1/users/sessions').send({ email, username, avatar });
-  return [agent, user];
+  await agent.get('/api/v1/github/callback?code=42');
+  return agent;
 };
 
 describe('backend-express-template routes', () => {
@@ -22,6 +19,8 @@ describe('backend-express-template routes', () => {
   it('should redirect to github auth page', async () => {
     const resp = await request(app).get('/api/v1/github/login');
     expect(resp.header.location).toMatch(
+      // `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=user&redirect_uri=${process.env.GITHUB_REDIRECT_URI}`
+
       `https://github.com/login/oauth/authorize?client_id=c6f2354ce21fc78aff9f&scope=user&redirect_uri=http://localhost:7890/api/v1/github/callback/`
     );
   });
@@ -29,7 +28,7 @@ describe('backend-express-template routes', () => {
   it('Test to redirect users to /dashboard when logged in', async () => {
     const resp = await request
       .agent(app)
-      .get('/api/v1/github/callback')
+      .get('/api/v1/github/callback?code=42')
       .redirects(1);
     expect(resp.body).toEqual({
       id: expect.any(String),
@@ -49,10 +48,13 @@ describe('backend-express-template routes', () => {
   });
 
   it('Test to confirm post is successful when logged in', async () => {
-    const resp = await request(app).post('/api/v1/posts').send({
+    const agent = await registerAndLogin();
+
+    const resp = await agent.post('/api/v1/posts').send({
       title: 'GORBOK THE DESTROYER',
       description: 'Ate KNOB KNOB, tastes like human',
     });
+    // console.log(variable);
     expect(resp.status).toEqual(200);
     expect(resp.body).toHaveProperty('title', 'GORBOK THE DESTROYER');
     expect(resp.body).toHaveProperty(
