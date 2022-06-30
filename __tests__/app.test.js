@@ -39,7 +39,9 @@ describe('gitty-tests', () => {
   });
 
   it('Test to grab all posts', async () => {
-    const resp = await request(app).get('/api/v1/posts');
+    const agent = await registerAndLogin();
+
+    const resp = await agent.get('/api/v1/posts');
     const test = resp.body.find((post) => post.title === 'KNOB KNOBs diary');
 
     expect(test).toHaveProperty('title', 'KNOB KNOBs diary');
