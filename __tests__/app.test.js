@@ -16,7 +16,7 @@ describe('gitty-tests', () => {
   beforeEach(() => {
     return setup(pool);
   });
-  it.skip('should redirect to github auth page', async () => {
+  it('should redirect to github auth page', async () => {
     const resp = await request(app).get('/api/v1/github/login');
     expect(resp.header.location).toMatch(
       `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=user&redirect_uri=${process.env.GITHUB_REDIRECT_URI}`
